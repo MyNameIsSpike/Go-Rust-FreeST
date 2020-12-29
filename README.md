@@ -61,20 +61,31 @@ class Service {
 ### Go
 In the directory Go/plane_ticket:
 
-* Compile: go install
-* Execute: plane_ticket
+* Compile: ``` go install ```
+* Execute: ``` plane_ticket ```
 
 ### Rust
 In the directory Rust/plane_ticket:
 
-* Compile: cargo build
-* Check for errors without compiling: cargo check
-* Execute: cargo run
+* Compile: ``` cargo build ```
+* Check for errors without compiling: ``` cargo check ```
+* Execute: ``` cargo run ```
 
 ### FreeST
 In the directory FreeST:
 
-* Execute: freest plane_ticket.fst
+* Execute: ``` freest plane_ticket.fst ```
 
+## Links
 
+### Rust
+* Rust book: https://doc.rust-lang.org/stable/book/
 
+### Go
+* Go Documentation: https://golang.org/doc/
+* Concurrency Patterns in Go: https://youtu.be/YEKjSzIwAdA?list=WL
+* Rob Pikes Talk: https://youtu.be/f6kdp27TYZs
+
+### FreeST
+* FreeST Tutorial: http://rss.di.fc.ul.pt/tryit/FreeST
+* FreeST Website: http://rss.di.fc.ul.pt/tools/freest/
