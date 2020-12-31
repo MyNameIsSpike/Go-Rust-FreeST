@@ -33,9 +33,9 @@ class Agency {
 	void acceptOrder sell {
 		receiveWhile {
 			journeyPref := receive;
-		double price := getPrice( journeyPref );
-		// implementation of getPrice omitted
-		send( price );
+			double price := getPrice( journeyPref );
+			// implementation of getPrice omitted
+			send( price );
 		}
 		receiveCase (x) { // buyer accepts price
 			ACCEPT . new Service • orderDelivery { } ,
@@ -67,9 +67,9 @@ In the directory Go/plane_ticket:
 ### Rust
 In the directory Rust/plane_ticket:
 
-* Compile: ``` cargo build ```
-* Check for errors without compiling: ``` cargo check ```
-* Execute: ``` cargo run ```
+* Compile: ``` cargo build --bin plane_ticket```
+* Check for errors without compiling: ``` cargo check --bin plane_ticket```
+* Execute: ``` cargo run --bin plane_ticket```
 
 ### FreeST
 In the directory FreeST:
