@@ -1,3 +1,6 @@
+/**
+* Authors: Jorge Martins && Diogo Lopes
+*/
 package main
 
 import(
@@ -56,7 +59,10 @@ func main() {
 
 ////Utility functions
 func evalOffer(journeyPref string, price float64) bool{
-	return rand.Float32() < 0.5
+	//here we need to be carefull because the random source is not safe in concurrent goroutines
+	//It will panic in runtime if 2 goroutines try and access it simultaneously
+	 r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	return r.Float32() < 0.5
 }
 
 
@@ -107,6 +113,7 @@ func agency(c chan message){
 	if received.decision == "ACCEPT" {
 		go service(c)
 	}
+	//If the client rejected the transaction ends so no need for the else clause
 	fmt.Println("Closing the agency!")
 }
 
