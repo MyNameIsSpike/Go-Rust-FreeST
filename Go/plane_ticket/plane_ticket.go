@@ -38,7 +38,7 @@ func main() {
 	
 	///some mock values
 	var maxPrice float64 = 1000.00
-	var addr address = address{country: "Portugal", city: "Lisbon", street: "Confidencial"}
+	var addr address = address{country: "Portugal", city: "Lisbon", street: "Rua Augusta"}
 	var journeyPref = "Rome"
 
 	//channel that will be used by the goroutines
@@ -62,7 +62,7 @@ func evalOffer(journeyPref string, price float64) bool{
 
 ////GOROUTINES
 func customer(maxPrice float64, journeyPref string, addr address, c chan message, wg *sync.WaitGroup){
-	
+	fmt.Println("Starting the customer!")
 	defer wg.Done()//Notify wait group when func is over
 	
 	go agency(c)//start agency
@@ -81,19 +81,19 @@ func customer(maxPrice float64, journeyPref string, addr address, c chan message
 		c <- message{decision: "ACCEPT"}
 		c <- message{customerAddress: addr}
 		bookedDate := (<- c).journeyDate
-		fmt.Println(bookedDate)
+		fmt.Printf("Flight date: %s, %d/%s/%d\n", bookedDate.Weekday().String(), bookedDate.Day(), bookedDate.Month().String(), bookedDate.Year())
 	} else { 
-		c <- message{} //customer address fields will be ""
+		c <- message{decision: "REJECT"} //customer address fields will be ""
 	}
 	fmt.Println("Closing the customer!")
 }
 
 func agency(c chan message){
-
+	fmt.Println("Starting the agency!")
 	var received message
 	for true {
 		//Receiving the wanted journey and informing the price
-		received := <-c
+		received = <-c
 		if received.journeyPreference == ""{
 			//Once we dont receive a string its because the customer ended the transaction
 			break;
@@ -103,19 +103,19 @@ func agency(c chan message){
 		c <- message{journeyPrice: price}
 	}
 
-	fmt.Println(received.decision)
+	fmt.Println("Decision: " + received.decision)
 	if received.decision == "ACCEPT" {
 		go service(c)
 	}
-
 	fmt.Println("Closing the agency!")
 }
 
 func service(c chan message) {
+	fmt.Println("Starting the service!")
 	addr := (<-c).customerAddress //receive address (to store I guess)
-	fmt.Printf("Customer Address:\n Country: %s, City: %s, Street: %s\n", addr.country, addr.city, addr.street)
+	fmt.Printf("Customer Address: Country-> %s, City-> %s, Street-> %s\n", addr.country, addr.city, addr.street)
 	now := time.Now()
-	offset := rand.Int()
+	offset := rand.Intn(60)
 	date := now.AddDate(0,0,offset)
 	c <- message{journeyDate: date}
 	fmt.Println("Closing the service!")
