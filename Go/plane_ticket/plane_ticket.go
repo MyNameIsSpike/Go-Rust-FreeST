@@ -97,7 +97,7 @@ func customer(maxPrice float64, journeyPref string, addr address, c chan message
 func agency(c chan message){
 	fmt.Println("Starting the agency!")
 	var received message
-	for true {
+	for {
 		//Receiving the wanted journey and informing the price
 		received = <-c
 		if received.journeyPreference == ""{
