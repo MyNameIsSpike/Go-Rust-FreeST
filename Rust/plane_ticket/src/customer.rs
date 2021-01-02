@@ -41,58 +41,54 @@ pub fn order(
     addr: Address,
     journey_pref: String,
 ) {
-    let customer = thread::spawn(move || {
-        let customer_send = send.clone();
-        let customer_recv = recv.clone();
-        println!("Starting the customer!");
-        let _ = thread::spawn(move || {
-            agency::sell(send, recv);
-        });
-        let mut price: f64;
-        loop {
-            let journey_pref_message = Message::JourneyPreference(journey_pref.clone());
-
-            customer_send.send(journey_pref_message);
-            let received: Message = customer_recv.recv().unwrap();
-            match received {
-                Message::JourneyPrice(p) => {
-                    price = p;
-                    println!("Price Offer: {}", price);
-                    if eval_offer(&journey_pref, &price) {
-                        break;
-                    }
-                }
-                _ => (),
-            }
-        }
-
-        let customer_decision: Message;
-        if price < max_price {
-            customer_decision = Message::CustomerDecision(Decision::ACCEPT);
-            customer_send.send(customer_decision);
-            let address_message = Message::CustomerAddress(addr);
-            customer_send.send(address_message);
-            let received = customer_recv.recv().unwrap();
-            match received {
-                Message::JourneyDate(d) => {
-                    println!(
-                        "Flight date: {}, {}/{}/{}",
-                        d.weekday(),
-                        d.day(),
-                        d.month(),
-                        d.year()
-                    );
-                }
-                _ => (),
-            }
-        } else {
-            customer_decision = Message::CustomerDecision(Decision::REJECT);
-            customer_send.send(customer_decision);
-        }
-        println!("Closing the customer!");
+    let customer_send = send.clone();
+    let customer_recv = recv.clone();
+    println!("Starting the customer!");
+    let _ = thread::spawn(move || {
+        agency::sell(send, recv);
     });
+    let mut price: f64;
+    loop {
+        let journey_pref_message = Message::JourneyPreference(journey_pref.clone());
 
-    let _ = customer.join();
+        customer_send.send(journey_pref_message);
+        let received: Message = customer_recv.recv().unwrap();
+        match received {
+            Message::JourneyPrice(p) => {
+                price = p;
+                println!("Price Offer: {}", price);
+                if eval_offer(&journey_pref, &price) {
+                    break;
+                }
+            }
+            _ => (),
+        }
+    }
+
+    let customer_decision: Message;
+    if price < max_price {
+        customer_decision = Message::CustomerDecision(Decision::ACCEPT);
+        customer_send.send(customer_decision);
+        let address_message = Message::CustomerAddress(addr);
+        customer_send.send(address_message);
+        let received = customer_recv.recv().unwrap();
+        match received {
+            Message::JourneyDate(d) => {
+                println!(
+                    "Flight date: {}, {}/{}/{}",
+                    d.weekday(),
+                    d.day(),
+                    d.month(),
+                    d.year()
+                );
+            }
+            _ => (),
+        }
+    } else {
+        customer_decision = Message::CustomerDecision(Decision::REJECT);
+        customer_send.send(customer_decision);
+    }
+    println!("Closing the customer!");
 }
 
 fn eval_offer(_journey_pref: &String, _price: &f64) -> bool {
