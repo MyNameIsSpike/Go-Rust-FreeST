@@ -1,3 +1,11 @@
+-----------------------DOUBTS----------------------------
+-- 1- How to use floats in Freest;
+-- 2- How to import code in Freest
+--in order to have the code organized in files;
+-- 3- How to write Strings in Freest;
+-- 4- How to catch all the results inside a match in Freest;
+---------------------------------------------------------
+
 -----------------------DATATYPES-------------------------
 -- It would be useful to have a separated module
 --for defining datatypes that are going to be
@@ -5,8 +13,6 @@
 data String = Nil | StringCons Char String
 
 -- Address should be defined in a "customer" class
---but I wasn't able to import classes in Freest
--- For now we will have to do everything in the same file
 data Address = AddressCons String String String
 
 data JourneyPreference = JPrefCons String
@@ -26,13 +32,20 @@ data Message = JourneyPreference
                 | JourneyPrice
                 | CustomerAddress
                 | CustomerDecision
+
+-- Not sure about the skips
+type MessageC : SL = +{JourneyPreference: Skip,
+                        JourneyDate: Skip,
+                        JourneyPrice: Skip,
+                        CustomerAddress: Skip,
+                        CustomerDecision: Skip}
 ---------------------------------------------------------
 
 -- main is not supposed to return Int, this is just temporary
 main : Int
 main =
     -- some mock values
-    let max_price = 1000 in
+    let maxPrice = 1000 in
     -- There must be another way to write strings in Freest
     --For now this worked
     let country =  StringCons 'P' $ StringCons 'o' $ StringCons 'r'
@@ -47,10 +60,46 @@ main =
         $ StringCons 'g' $ StringCons 'u' $ StringCons 's'
         $ StringCons 't' $ StringCons 'a' Nil in
     let addr = AddressCons country city street in
-    let journey_pref =
+    let journeyPref =
         StringCons 'R' $ StringCons 'o' $ StringCons 'm'
         $ StringCons 'e' Nil in
 
     --channel that will be used in the communication
+    let (w,r) = new MessageC in
+    let _ = fork (customerOrder maxPrice journeyPref addr w r) in
 
-    max_price
+    maxPrice
+
+customerOrder : Int -> String -> Address -> MessageC -> dualof MessageC -> ()
+customerOrder maxPrice journeyPref addr w r =
+    -- don't know if it is necessary to pass both ends of the channel
+    let _ = fork (agencySell w r) in
+
+    customerOrderCycle journeyPref
+
+customerOrderCycle : String -> ()
+customerOrderCycle journeyPref =
+
+    let jp = JPrefCons journeyPref in
+
+    let _ = send jp w in
+
+    let received = receive r in
+
+    let (price, r) = receive r in
+
+    match price with {
+        JourneyPrice price -> price --,
+        -- don't know how to catch other results   _ v -> printChar 'e' -- print error
+    }
+
+    if evalOffer journeyPref price then  else customerOrderCycle journeyPref
+
+agencySell : MessageC -> dualof MessageC -> ()
+agencySell w r =
+    match r with {
+
+    }
+
+evalOffer : String -> journe
+evalOffer journeyPref price
