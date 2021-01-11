@@ -17,6 +17,7 @@ impl Display for Decision {
         }
     }
 }
+
 pub enum Message {
     JourneyPreference(String),
     JourneyDate(Date<Utc>),
