@@ -1,7 +1,12 @@
------------------------DATATYPES-------------------------
--- It would be useful to have a separated module
---for defining datatypes that are going to be
---used in a lot of files
+{- |
+Module      :  Plane Ticket
+Description :  Algorithm that simulates the communication between a plane ticket buyer and an agency
+Copyright   :  Jorge Martins & Diogo Lopes
+
+This example is from Vasconcelos, V.T. (and several others):
+"Behavioral Types in Programming Languages" (figures 2.4, 2.5 and 2.6)
+
+-}
 
 data Address = Address String String String --address of a customer
 
@@ -11,7 +16,7 @@ data Message = JourneyPreference String
                 | CustomerAddress Address
                 | CustomerDecision String
 
--- Not sure about the skips
+--Channels to exchange messages
 type MessageC : SL = +{JourneyPreference: !String,
                         JourneyDate: !String,
                         JourneyPrice: !Int,
@@ -30,22 +35,25 @@ main =
     let addr = Address country city street in
     let journeyPref = "Rome" in
 
-    --channel that will be used in the communication
-    let (customerSend, agencyReceive) = new MessageC in
-    let _ = customerOrder maxPrice journeyPref addr customerSend agencyReceive in 
+    --Channel to only let main end after the customer is done
+    let (lockw, lockr) = new !Bool in
+    --START THE CUSTOMER
+    let _ = fork (customerOrder maxPrice journeyPref addr lockw) in 
+    let (_,_) = receive lockr in --Once we receive this the customer as finished
     "Finished!!!"
 
-    --If we fork customerOrder main ends before the rest is concluded
-    --probably we need to block with a channel
-
 --Customer Side Algorithm
-customerOrder : Int -> String -> Address -> MessageC -> dualof MessageC -> ()
-customerOrder maxPrice journeyPref addr customerSend agencyReceive =
+customerOrder : Int -> String -> Address -> !Bool -> ()
+customerOrder maxPrice journeyPref addr lockw =
     let _ = printStringLn "Starting the customer!" in
+
+    --Creating a channel for each direction of Customer <-> Agency
+    let (customerSend, agencyReceive) = new MessageC in
     let (agencySend,customerReceive) = new MessageC in
+    --START THE AGENCY
     let _ = fork (agencySell agencySend agencyReceive) in
-    let msg = JourneyPreference journeyPref in
-    let customerSend = sendMessage customerSend msg in 
+    let customerSend = sendMessage customerSend (JourneyPreference journeyPref) in 
+    -- Since FreeST does not have the functionality to collaapse all of the unwanted matches into a _ we have this big match block
     let price = match customerReceive with {
         JourneyPreference customerReceive -> 
                 let (_,customerReceive) = receive customerReceive in 
@@ -72,6 +80,7 @@ customerOrder maxPrice journeyPref addr customerSend agencyReceive =
                 let _ = printStringLn "Error: received a decision when should have received a journey price!" in 
                 -1 
     } in
+    let _ = send True lockw in --Inform main that the customer finished
     printStringLn "Closing the customer!"
 
 
@@ -105,8 +114,7 @@ agencySell agencySend agencyReceive =
                 let _ = printStringLn "Error: received a price when should have received a journey preference!" in 
                 "ERR"
     } in 
-    let answer = JourneyPrice romePrice in 
-    let _ = sendMessage agencySend answer in 
+    let _ = sendMessage agencySend (JourneyPrice romePrice) in 
     printStringLn "Closing the Agency!" 
 
 
@@ -147,4 +155,3 @@ sendMessage c m =
       let c  = send cd c in
       ()
   }
-
