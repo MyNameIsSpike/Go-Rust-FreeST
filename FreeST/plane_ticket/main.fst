@@ -40,7 +40,7 @@ customerOrder maxPrice journeyPref addr lockw =
     --Creating a channel for each direction of Customer <-> Agency
     let (customerEnd, agencyEnd) = new LoopC in
     --START THE AGENCY
-    let _ = fork (agencySell agencyEnd) in
+    fork (agencySell agencyEnd);
     let (customerEnd,price) = customerMainLoop customerEnd journeyPref in
     (if price <= maxPrice 
         then 
@@ -63,9 +63,7 @@ customerMainLoop : LoopC -> String -> (ChoiceC,Int)
 customerMainLoop customerEnd journeyPref = 
     let customerEnd = send journeyPref customerEnd in 
     let (price,customerEnd) = receive customerEnd in
-    let _ = printString "Received price: " in 
-    let _ = printIntLn price in
-   -- let b = (nextRandom a) in
+    printString "Received price: "; printIntLn price;
     if evalOffer journeyPref price 
         then let customerEnd = select Break customerEnd in (customerEnd,price) 
         else let customerEnd = select Continue customerEnd in customerMainLoop customerEnd journeyPref
@@ -73,17 +71,17 @@ customerMainLoop customerEnd journeyPref =
 --Agency Side Algorithm 
 agencySell : dualof LoopC -> ()
 agencySell agencyEnd = 
-    let _ = printStringLn "Starting the Agency!" in
+    printStringLn "Starting the Agency!";
     let romePrice = 289 in 
-    let _ = agencyMainLoop agencyEnd romePrice in 
+    agencyMainLoop agencyEnd romePrice;
     printStringLn "Closing the Agency!" 
 
 -- Loop in
 agencyMainLoop : dualof LoopC -> Int -> ()
 agencyMainLoop agencyEnd romePrice =
     let (jp, agencyEnd) = receive agencyEnd in 
-    let _ = printString "Received preference: " in 
-    let  _ = printStringLn jp in
+    printString "Received preference: ";printStringLn jp;
+
     let agencyEnd = send romePrice agencyEnd in
     match agencyEnd with {
         Break agencyEnd -> match agencyEnd with {
@@ -95,27 +93,28 @@ agencyMainLoop agencyEnd romePrice =
 
 serviceOrderDelivery : dualof ServiceC -> ()
 serviceOrderDelivery agencyEnd = 
-        let _ = printStringLn "Starting the service!" in
+        printStringLn "Starting the service!";
         let date = "23/03/2021" in
         ---Receive the Address
         let (country,agencyEnd) = receive agencyEnd in
         let (city,agencyEnd) = receive agencyEnd in
         let (street,agencyEnd) = receive agencyEnd in
-        let _  = printString "Customer Address: " in
-        let _ = printString country in let _ = printString ", " in
-        let _ = printString city in let _ = printString ", " in
-        let _ = printStringLn street in
+        printString "Customer Address: ";
+        printString country;printString ", ";
+        printString city;printString ", ";
+        printStringLn street;
         --send the date
-        let _ = send date agencyEnd in 
+        sink(send date agencyEnd); 
         printStringLn "Closing the service!"
 
-nextRandom : Int -> Int
-nextRandom n = n + 1 * (mod 111 100)
-
---evaluating the offer(For now it is always true)
+--evaluating the offer
 evalOffer : String -> Int -> Bool
 evalOffer jpref jprice = True
 
 -- Auxiliary function because of fork : () -> ()
 sink : Skip -> ()
 sink _ = ()
+
+--Function to generate a random
+nextRandom : Int -> Int
+nextRandom n = n + 1 * (mod 111 100)
