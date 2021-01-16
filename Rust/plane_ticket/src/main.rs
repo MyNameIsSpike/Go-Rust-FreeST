@@ -24,6 +24,5 @@ fn main() {
     let customer = thread::spawn(move || {
         customer::order(send, recv, max_price, addr, journey_pref);
     });
-
     let _ = customer.join();
 }
