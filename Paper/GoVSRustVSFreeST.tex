@@ -108,9 +108,9 @@ class Service {
 \subsection{Programming Languages}
 \subsubsection{Rust}\hfill\\\\
 \subsubsection{Go}\hfill\\\\
-\textcolor{red}{Go is a statically typed, imperative language	used to write concorrent programs with ease and productivity. It supports concurrency through goroutines. Goroutines are multiplexed onto threads and, basically, they are independently executing functions. If one goroutine is blocked, Go's run-time moves other goroutines that are on the same thread to a different runnable thread. (Não sei se vale a pena falar aqui da stack das goroutines). Goroutines use channels to communicate with each other. Go's channels can be buffered or unbuffered and they are bidirectional by default.}
+\textcolor{red}{Go is a statically typed, imperative language	used to write concorrent programs with ease and productivity. It supports concurrency through goroutines. Goroutines are multiplexed onto threads and, basically, they are independently executing functions. If one goroutine is blocked, Go's run-time moves other goroutines that are on the same thread to a different runnable thread. (Não sei se vale a pena falar aqui da stack das goroutines). Goroutines use channels to communicate with each other. Go's channels can be buffered or unbuffered and they are bidirectional by default. (Podemos falar das coisas que Go não suporta, ex: genericos)}
 \subsubsection{FreeST}\hfill\\\\
-\lipsum[1]
+\textcolor{red}{FreeST is also a statically typed (certo?	), concurrent programming language. But it is not an imperative language, it is a functional language where processes communicate via message-passing through rendezvous channels. These channels are bidirectional and session types can be defined to specify how the channels will work.(É para os canais que se utilizam os Session types correto? Para definir protocolos)}
 \section{Implementation Details}
 \lipsum[1]
 \subsection{Go}
@@ -132,6 +132,10 @@ First Author wrote the part of the program implemented the phasers. Second Autho
 Both authors wrote this paper, with First Author focusing on the introduction, related work and conclusions while the Second Author focused on approach and evaluation.
 
 Each author spent around 30 hours on this project.
+
+\textcolor{red}{Jorge Martins implemented the algorithm in Rust and Go. Both authors implemented the algorithm in FreeST.
+Both authors wrote this paper, ... 
+Jorge Martins spent around X hours on this project. Diogo Lopes spent around Y hours on this project.}
 \bibliographystyle{unsrt}
 \bibliography{bibliography}
 \end{document}
