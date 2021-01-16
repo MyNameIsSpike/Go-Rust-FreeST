@@ -107,14 +107,45 @@ class Service {
 \subsubsection{Rust}\hfill\\\\
 \subsubsection{Go}\hfill\\\\
 Go is a programming language designed at Google that focuses in performance, usability and parallel programming.
+Its statically typed, meaning it checks the type safety of the program by analysing the source code. Therefore we know at compilation time what errors we might have committed.\\
 It introduces a new primitive called Goroutines, a form of lightweight threads, meaning they share context with other goroutines in a program. They are also managed by the Go runtime, that will be responsible for the scheduling of each goroutine. This means that if one goroutine is blocked, Go's run-time will switch to another with work to do.
-Goroutines multiplex coroutines, independently executing functions, onto a set of thread that by default match the number of logical processors of the environment. Of course this can be change with the {\bf GOMAXPROCS} function that sets the number of logical processes that the go program can access. Another great aspect of goroutines is that they achieve all this we a very modest amount of memory, allowing the execution of a great number of them.\\
+Goroutines multiplex coroutines, independently executing functions, onto a set of thread that by default match the number of logical processors of the environment. Of course this can be change with the {\it GOMAXPROCS} function that sets the number of logical processes that the go program can access. Another great aspect of goroutines is that they achieve all this we a very modest amount of memory, allowing the execution of a great number of them.\\
 Go treats channels are first class objects, in contrast with most of the other languages that offer them through external packages, or crates as we will see in Rust. This channels allow goroutines to communicate between themselves and it also allows to synchronize this same goroutines, because the channels block until the sender/receiver are ready to continue.\\	
-Go was also built to be simple to understand, and because of that its syntax is very easy to learn. We can observe this in goroutines that can be started with a simple {\bf go func()} or the channels, constructed with {\bf make(chan type)}.
+Go was also built to be simple to understand, and because of that its syntax is very easy to learn. We can observe this in goroutines that can be started with a simple:
+\begin{lstlisting}[language=Go]
+go func()
+\end{lstlisting} 
+or the channels, constructed with
+\begin{lstlisting}[language=Go]
+c := make(chan string)
+\end{lstlisting}.
 This language also encourages developers to write good code, emitting warnings to bad practices such as unused variables or unused imports, keeping the code clean.
 \subsubsection{FreeST}\hfill\\\\
-
-\textcolor{red}{FreeST is also a statically typed (certo?	), concurrent programming language. But it is not an imperative language, it is a functional language where processes communicate via message-passing through rendezvous channels. These channels are bidirectional and session types can be defined to specify how the channels will work.(É para os canais que se utilizam os Session types correto? Para definir protocolos)}
+FreeST is a programming language developed at LASIGE, that focus on thread creation and channel communication. Its syntax is very similar to Haskell and it introduces a very powerful tool: context-free session types based channels.\\
+Session types describe communications in heterogeneous channels with a tail recursive structure.
+For example we can describe a channel that sends a String and receives a Int in a very simple way
+\begin{lstlisting}[language=haskell]
+type exampleC : SL = !String;?Int
+\end{lstlisting}
+This allows a programmer to send different types in a channel without having to wrap it in a new type structure.
+It also allows to use {\it Choices}, in order for the thread to choose which communication path it will follow:
+\begin{lstlisting}[language=haskell]
+type exampleC : SL = +{ChoiceOne: !String;?Int, ChoiceTwo: !String;?String}
+\end{lstlisting}
+This is achieved by the select keyword that, as the name indicates, selects the desired branch. The other end of the communication will then learn which choice was made by matching the channel with one of the many choice it is allowed to make.
+The {\it send} and {\it receive} functions send a message through a given channel and receive a message from a given channel, respectively, returning, in the end, whatever is left for that channel to do. This means, for example, that once we send a String in the channel above (!String;?Int) we will then receive a channel of type ?Int, since the !String part was consumed by the {\it send} function. Once there is nothing else for a channel to do they return the previously mentioned skip.
+Another concept to have in mind when using FreeST is the notion of Kind, that divides types into 4 categories, as we can see in figure \ref{kind}.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=1]{kind.png}
+\caption{FreeST Kinding System}
+\label{kind}
+\end{figure}
+These types are organized into their prekinds, functional(T) or session(S), and their multiplicity, linear(L) or unrestricted(U).
+The channels we mentioned above are of type SL, meaning they are linear session types. This means they must be fully consumed once created, or otherwise the compiler will emit an error.
+Similiar to Go and Rust these channel are blocking, allowing us to synchronize the threads by simply waiting for and sending messages.
+Another relevant aspect is the fork primitive, that allows the programmer to create threads by using the forkIO primitive.
+FreeST is in its early stages of development, recently released v1.0.3, meaning there are still a lot of primitives that one usually finds in programming languages missing, such as floats and randoms.
 \section{Implementation Details}
 \lipsum[1]
 \subsection{Go}
