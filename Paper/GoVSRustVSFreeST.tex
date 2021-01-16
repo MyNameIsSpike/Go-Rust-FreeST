@@ -28,19 +28,22 @@ basicstyle=\small,
 \maketitle
 \thispagestyle{empty}
 \begin{abstract}
-FreeST is an experimental functional programming language being developed at LASIGE that offers primitives to thread creation and channel communication, different to those in programming languages such as Go and Rust, that are currently being appraised by their performance and reliability. Despite being different, these languages are comparable by the characteristics of their common primitives and by their learning curve. Although there a several articles comparing Rust and Go, they mainly focus in performance and reliability instead of the learning curve of each language and their channels and thread creation primitives. FreeST on the other hand, due to the small community working on it, is yet to be compared to the others.
-In order to compare the three languages we used a algorithm that focus on thread creation, communication using channels and thread synchronization using those same channels and learned the three languages in order to comment on the difficulties and different aspects of each.
-This comparison is useful to understand what aspects of some languages could benefit the others and also to inform about what difficulties one may find when writing code in each of them.
+FreeST is an experimental functional programming language being developed at LASIGE that offers primitives to thread creation and channel communication, different to those in programming languages such as Go and Rust, that are currently being appraised by their performance and reliability. Despite being different, these languages are comparable by the characteristics of their common primitives and by their learning curve \textcolor{red}{(eu diria que que a learning curve de rust e freest é muito maior que a de go)}. Although there a\textcolor{red}{re} several articles comparing Rust and Go, they mainly focus in performance and reliability instead of the learning curve of each language and their channels and thread creation primitives \textcolor{red}{(acho que go se focou bastante na learning curve... eles tentaram que a linguagem fosse muito simples de aprender. Não entendi se querias dizer que estas linguagens não se focavam tanto  nas primitivas de criacao de threads e nas primitivas de canais?)}. FreeST on the other hand, due to the small community working on it, is yet to be compared to the others.
+In order to compare the three languages we used a\textcolor{red}{n} algorithm that focus\textcolor{red}{es} on thread creation, communication using channels and thread synchronization using those same channels\textcolor{red}{. We } \textcolor{red}{(}and\textcolor{red}{)} learned the three languages in order to comment on the difficulties and different aspects of each.
+This comparison is useful to understand what aspects of some languages could benefit \textcolor{red}{other developers (}the others\textcolor{red}{)} and also to inform about what difficulties one may find when writing code in each of them.
 \end{abstract}
 \section{Introduction}
-Rust and Go are languages that are growing in popularity due to their performance and reliability, according to the TIOBE index. FreeST\cite{freest} on the other hand is very recent programming language being developed at LASIGE, a research center in the Faculty of Sciences of the University of Lisbon.
+Rust and Go are languages that are growing in popularity due to their performance and reliability, according to the TIOBE index. FreeST\cite{freest} on the other hand is \textcolor{red}{a} very recent programming language being developed at LASIGE, a research center in the Faculty of Sciences of the University of Lisbon. \textcolor{red}{In fact, FreeST is still being developed and hasn't been published (não sei se published é a palavra mais adequada) yet.}
 In order to compare the three languages, that were completely new to each of us until the start of this project, we aimed to understand the basic concepts of each language, such as the ownership and lifetimes in Rust or the session types \cite{session} in FreeST.
 %TODO something here
 Our goal was to implement a simple communication algorithm that simulates a conversation between a customer and an agency selling plane tickets in Rust, Go and FreeST, understanding the main differences and characteristics of each language and identifying the main complications we felt when learning them.
 \newpage
 \section{Background}
 \subsection{The Plane Ticket Algorithm}
-In order to explore the interprocess communication through channels and thread creation, we used a simple algorithm that simulates a customer trying to buy a plane ticket from a agency.
+In order to explore the interprocess communication through channels and thread creation, we used a simple algorithm that simulates a customer trying to buy a plane ticket from a\textcolor{red}{n} agency.
+\textcolor{red}{Será que no SSD devíamos deixar claro que a guarda do loop só é avaliada depois de receber o primeiro price?}
+\textcolor{red}{Erro: Devia ser price \textless = maxPrice.}
+\textcolor{red}{Não sei quais os processos que devem ser representados com bonecos, mas acho que pelo menos o Service nao devia...}
 \begin{figure}[H]
 \centering
 \includegraphics[scale=0.4]{Algorithm.png}
