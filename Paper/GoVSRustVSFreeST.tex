@@ -6,6 +6,7 @@
 \usepackage{graphicx} 
 \usepackage{lipsum}
 \usepackage{float}
+\usepackage{listings-rust}
 \setcounter{secnumdepth}{5}
 \begin{document}
 \title{Comparing FreeST, Go and Rust}
@@ -55,56 +56,30 @@ At this point the customer will make a choice:
 The agency will spawn a service which will receive the customer address and send the journey date.
 \item If the received price is greater than the max accepted price of the customer, he will reject the offer and end the communication.
 \end{itemize}
-The pseudo code for this algorithm is as follow:
-\begin{lstlisting}[caption={Customer Algorithm},captionpos=b]
-class Customer {
-	Address addr;
-	double price, maxPrice;
-	bool loop := true;
-	String journeyPref;
-	new Agency.sell {
-		sendWhile (loop) {
-			send( journeyPref );
-			price := receive;
-			loop := evalOffer(journeyPref,price);
-			// implementation of evalOffer omitted
-		};
-		sendCase( evalPrice(price,maxPrice) ) {
-			ACCEPT > send( addr ); Date date := receive;
-			REJECT > null; /* customer rejects price
-					,end of protocol */ 
-		}
-	} /* End method invocation */
-}
-\end{lstlisting}
-\begin{lstlisting}[caption={Agency Algorithm},captionpos=b]
-class Agency {
-	String journeyPref;
-	void acceptOrder sell {
-		receiveWhile {
-			journeyPref := receive;
-			double price := getPrice( journeyPref );
-			// implementation of getPrice omitted
-			send( price );
-		}
-		receiveCase (x) { // buyer accepts price
-			ACCEPT < new Service . orderDelivery { } ,
-			REJECT < null;// receiveCase : buyer rejects 
-        }
-	} /* End method sell */
-}
-\end{lstlisting}
-\begin{lstlisting}[caption={Service Algorithm},captionpos=b]
-class Service {
-	void receiveOrderSession orderDelivery() {
-		Address custAddress := receive;
-		Date date := new Date();
-		send( date );
-	}
-}
-\end{lstlisting}
 \subsection{Programming Languages}
 \subsubsection{Rust}\hfill\\\\
+Rust is a programming language that greatly focuses in performance, concurrency safety and memory management.
+It introduces many core features such as ownership, lifetimes and the absence of garbage collection.
+Ownership is usually a new concept for programmers that is built over three simple rules:
+\begin{itemize}
+\item Each value in Rust has a variable that’s called its owner;
+\item There can only be one owner at a time;
+\item When the owner goes out of scope, the value will be dropped.
+\end{itemize}
+The most important rule is the 3rd. Once the lifetime of the owner of a value ends, that value is dropped in memory. This is a key aspect of the memory management model of Rust because this way we don't need to have a garbage collector like Java has, that is constantly checking if a value can be erased from memory and by doing so it has a negative impact on the performance of a program. With ownership, Rust as no need for a garbage collector and therefore its performance is greatly enhanced, being on par with languages like C and C++.\\
+With ownership, once we move a variable to a function(as an argument) it stops being available to the caller:
+\begin{lstlisting}[language=Rust]
+fn main() {
+	// s comes into scope
+    let s = String::from("hello");
+	// s ownership is passed to the function
+    takes_ownership(s);   
+    //s is not available here
+}
+\end{lstlisting}
+Another concept that we don't usually see in other programming languages is marking a variable as mutable or immutable in its assignment. By default a variable is immutable and therefore we can change afterwards, meaning we must explicitly mark a variable as mutable in order to change it later in the program.\\
+Unlike what we will see in Go and FreeST, Rust does not have primitives to create threads or channels. Therefore to do so we need to import crates that support thread creation and channels creation.\\
+One of the most powerful primitives Rust has to offer are Enums, that allows a programmer to define a type by enumerating its possible variants.
 \subsubsection{Go}\hfill\\\\
 Go is a programming language designed at Google that focuses in performance, usability and parallel programming.
 Its statically typed, meaning it checks the type safety of the program by analysing the source code. Therefore we know at compilation time what errors we might have committed.\\
@@ -122,7 +97,7 @@ c := make(chan string)
 This language also encourages developers to write good code, emitting warnings to bad practices such as unused variables or unused imports, keeping the code clean.
 \subsubsection{FreeST}\hfill\\\\
 FreeST is a programming language developed at LASIGE, that focus on thread creation and channel communication. Its syntax is very similar to Haskell and it introduces a very powerful tool: context-free session types based channels.\\
-Session types describe communications in heterogeneous channels with a tail recursive structure.
+Session types describe communications in heterogeneous channels with a tail recursive structure\cite{session}.
 For example we can describe a channel that sends a String and receives a Int in a very simple way
 \begin{lstlisting}[language=haskell]
 type exampleC : SL = !String;?Int
@@ -133,44 +108,31 @@ It also allows to use {\it Choices}, in order for the thread to choose which com
 type exampleC : SL = +{ChoiceOne: !String;?Int, ChoiceTwo: !String;?String}
 \end{lstlisting}
 This is achieved by the select keyword that, as the name indicates, selects the desired branch. The other end of the communication will then learn which choice was made by matching the channel with one of the many choice it is allowed to make.
-The {\it send} and {\it receive} functions send a message through a given channel and receive a message from a given channel, respectively, returning, in the end, whatever is left for that channel to do. This means, for example, that once we send a String in the channel above (!String;?Int) we will then receive a channel of type ?Int, since the !String part was consumed by the {\it send} function. Once there is nothing else for a channel to do they return the previously mentioned skip.
-Another concept to have in mind when using FreeST is the notion of Kind, that divides types into 4 categories, as we can see in figure \ref{kind}.
-\begin{figure}[H]
-\centering
-\includegraphics[scale=1]{kind.png}
-\caption{FreeST Kinding System}
-\label{kind}
-\end{figure}
-These types are organized into their prekinds, functional(T) or session(S), and their multiplicity, linear(L) or unrestricted(U).
+The {\it send} and {\it receive} functions send a message through a given channel and receive a message from a given channel, respectively, returning, in the end, whatever is left for that channel to do.
+Another concept to have in mind when using FreeST is the notion of Kind, that divides types into 4 categories:
+functional(T), session(S), linear(L) and unrestricted(U).
 The channels we mentioned above are of type SL, meaning they are linear session types. This means they must be fully consumed once created, or otherwise the compiler will emit an error.
 Similiar to Go and Rust these channel are blocking, allowing us to synchronize the threads by simply waiting for and sending messages.
-Another relevant aspect is the fork primitive, that allows the programmer to create threads by using the forkIO primitive.
+Another relevant aspect is the fork primitive, that allows the programmer to create threads by using the forkIO primitive\cite{freest}.
 FreeST is in its early stages of development, recently released v1.0.3, meaning there are still a lot of primitives that one usually finds in programming languages missing, such as floats and randoms.
 \section{Implementation Details}
-\lipsum[1]
 \subsection{Go}
 \lipsum[1]
 \subsection{Rust}
 \lipsum[1]
 \subsection{FreeST}
 \lipsum[1]
-\subsection{Discussion}
-Here you should discuss the results on a high level. For instance, based on our results, the parallelization of the merge-sort is relevant as no other parallel work occurs at the same time, and the complexity $O(N log(N))$ can have a large impact when the number of individuals is high.
+\section{Discussion}
+%Compare languages
 \section{Conclusions}
-Here you should resume the major conclusions taken from discussion. Ideally, these should align with the objectives introduced in the introduction.
-
-
-You should also list the future work, i. e., tasks and challenges that were outside your scope, but are relevant.
+Rust and Go are great languages either by their performance, simplicity or offered tools that are growing in fame due to these same reasons. With this it is safe to say that FreeST as some powerful competition ahead. On the other and FreeST has a very powerful tool that makes its future very bright: the context-free sessions types.
+This is a very important contribution to channel communication which would be very interesting to see implement in other languages, like creating a Rust crate offering channels of the said type.
+\\For future work, it would be interesting to compare the performance of each one of this languages by adapting the algorithm and measure the amount of transactions it can compute in a certain time interval.
 \section*{Acknowledgements}
-First Author wrote the part of the program implemented the phasers. Second Author implemented the MergeSort in parallel. 
-
-Both authors wrote this paper, with First Author focusing on the introduction, related work and conclusions while the Second Author focused on approach and evaluation.
-
-Each author spent around 30 hours on this project.
-
-\textcolor{red}{Jorge Martins implemented the algorithm in Rust and Go. Both authors implemented the algorithm in FreeST.
-Both authors wrote this paper, ... 
-Jorge Martins spent around X hours on this project. Diogo Lopes spent around Y hours on this project.}
+Jorge Martins implemented the big majority of the algorithm in Rust. Both authors implemented the Go and Freest algorithms.
+Both authors wrote this paper. The Rust related parts were mainly written by Jorge Martins.
+Jorge Martins spent around 42 hours on this project. Diogo Lopes spent around 35 hours on this project.\\
+The authors would like to thank Bernardo Almeida, a PhD student and LASIGE researcher that has been developing the language FreeST, for being available to answer questions that emerged while we were developing this project.
 \bibliographystyle{unsrt}
 \bibliography{bibliography}
 \end{document}
