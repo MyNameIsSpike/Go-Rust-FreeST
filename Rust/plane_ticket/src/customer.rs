@@ -1,3 +1,8 @@
+/**
+* Authors: Jorge Martins && Diogo Lopes
+* This example is from Vasconcelos, V.T. (and several others):
+* "Behavioral Types in Programming Languages" (figures 2.4, 2.5 and 2.6)
+*/
 use crate::agency;
 use crate::message::Decision;
 use crate::message::Message;
@@ -34,6 +39,7 @@ impl Address {
     }
 }
 
+//Customer order
 pub fn order(
     send: Sender<Message>,
     recv: Receiver<Message>,

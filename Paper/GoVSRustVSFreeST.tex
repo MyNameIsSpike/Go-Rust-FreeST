@@ -116,6 +116,8 @@ Similiar to Go and Rust these channel are blocking, allowing us to synchronize t
 Another relevant aspect is the fork primitive, that allows the programmer to create threads by using the forkIO primitive\cite{freest}.
 FreeST is in its early stages of development, recently released v1.0.3, meaning there are still a lot of primitives that one usually finds in programming languages missing, such as floats and randoms.
 \section{Implementation Details}
+\subsection{Rust}
+\lipsum[1]
 \subsection{Go}
 We created five distinct files: main.go, customer.go, agency.go, service.go and message.go.
 
@@ -126,8 +128,6 @@ This CustomerOrder goroutine is defined in customer.go, where we also define the
 The evalOffer function randomly returns a bool. 
 
 Finally, in message.go, are defined the types of the messages exchanged through the channel: JourneyPreference, JourneyDate, JourneyPrice, CustomerAddress and CustomerDecision. 
-\subsection{Rust}
-\lipsum[1]
 \subsection{FreeST}
 \lipsum[1]
 \section{Discussion}

@@ -1,3 +1,8 @@
+/**
+* Authors: Jorge Martins && Diogo Lopes
+* This example is from Vasconcelos, V.T. (and several others):
+* "Behavioral Types in Programming Languages" (figures 2.4, 2.5 and 2.6)
+*/
 use crate::message::Decision;
 use crate::message::Message;
 use crate::service;
@@ -5,7 +10,7 @@ use chan::Receiver;
 use chan::Sender;
 use std::collections::HashMap;
 use std::thread;
-
+//Agency sell code
 pub fn sell(send: Sender<Message>, recv: Receiver<Message>) {
     let mut map: HashMap<String, f64> = HashMap::new();
     map.insert(String::from("Rome"), 289.65);

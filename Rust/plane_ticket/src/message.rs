@@ -1,4 +1,9 @@
-//Contains the messages to be traded between threads
+/**
+* Authors: Jorge Martins && Diogo Lopes
+* This example is from Vasconcelos, V.T. (and several others):
+* "Behavioral Types in Programming Languages" (figures 2.4, 2.5 and 2.6)
+*/
+//Messages to be traded
 use crate::customer;
 use chrono::prelude::*;
 use std::fmt::{self, Display, Formatter};
@@ -8,6 +13,7 @@ pub enum Decision {
     REJECT,
 }
 
+//simple function to print the Decision type
 impl Display for Decision {
     // `f` is a buffer, and this method must write the formatted string into it
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {

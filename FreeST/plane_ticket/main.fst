@@ -85,8 +85,8 @@ agencyMainLoop agencyEnd romePrice =
     let agencyEnd = send romePrice agencyEnd in
     match agencyEnd with {
         Break agencyEnd -> match agencyEnd with {
-            Accept agencyEnd -> fork (serviceOrderDelivery agencyEnd),
-            Reject agencyEnd -> ()
+            Accept agencyEnd -> printStringLn "Decision: ACCEPT"; fork (serviceOrderDelivery agencyEnd),
+            Reject agencyEnd -> printStringLn "Decision: REJECT"
         },
         Continue agencyEnd -> agencyMainLoop agencyEnd romePrice
     }
@@ -94,27 +94,23 @@ agencyMainLoop agencyEnd romePrice =
 serviceOrderDelivery : dualof ServiceC -> ()
 serviceOrderDelivery agencyEnd = 
         printStringLn "Starting the service!";
-        let date = "23/03/2021" in
+        let date = "Thursday, 11/February/2021" in
         ---Receive the Address
         let (country,agencyEnd) = receive agencyEnd in
         let (city,agencyEnd) = receive agencyEnd in
         let (street,agencyEnd) = receive agencyEnd in
         printString "Customer Address: ";
-        printString country;printString ", ";
-        printString city;printString ", ";
-        printStringLn street;
+        printString "Country-> ";printString country;printString ", ";
+        printString "City-> ";printString city;printString ", ";
+        printString "Street-> ";printStringLn street;
         --send the date
         sink(send date agencyEnd); 
         printStringLn "Closing the service!"
 
 --evaluating the offer
 evalOffer : String -> Int -> Bool
-evalOffer jpref jprice = True
+evalOffer _ _ = True
 
 -- Auxiliary function because of fork : () -> ()
 sink : Skip -> ()
 sink _ = ()
-
---Function to generate a random
-nextRandom : Int -> Int
-nextRandom n = n + 1 * (mod 111 100)

@@ -1,3 +1,8 @@
+/**
+* Authors: Jorge Martins && Diogo Lopes
+* This example is from Vasconcelos, V.T. (and several others):
+* "Behavioral Types in Programming Languages" (figures 2.4, 2.5 and 2.6)
+*/
 use crate::message::Message;
 use chan::Receiver;
 use chan::Sender;
