@@ -129,6 +129,14 @@ The evalOffer function randomly returns a bool.
 
 Finally, in message.go, are defined the types of the messages exchanged through the channel: JourneyPreference, JourneyDate, JourneyPrice, CustomerAddress and CustomerDecision. 
 \subsection{FreeST}
+
+For FreeST, as it isn't yet possible to import code (certo?), we only created one file: main.fst.
+
+The Address datatype is defined as containing three Strings (country, city and street). Then, three different channel types are defined: ServiceC, to communicate with the service created by the agency, ChoiceC to communicate the customers choice after knowing the price that the agency has to offer, and LoopC to perform the communication with the agency for several iterations, if necessary, until evalOffer is true.
+
+Next, the main function is defined, where some mock values are created (the maximum price that the customer is willing to pay, the customer's address and the journey preference). After this mock values, a channel of Bools is created, so that the main function only finishes once the customer function is done. Finally, it starts the customerOrder thread, by forking (passing it the maximum price, the journey preference, the address and the end of the channel created where the customerOrder thread will be able to send a message to say that it has terminated). This customerOrder thread creates a channel of type LoopC to communicate with the Agency thread. Then, it starts the Agency thread, passing it one of the ends of the channel just created.
+
+
 \lipsum[1]
 \section{Discussion}
 %Compare languages
