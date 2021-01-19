@@ -46,7 +46,7 @@ Our goal was to implement this algorithm in Rust, Go and FreeST, in order to und
 \section{Background}
 \subsection{The Plane Ticket Algorithm}
 \label{alg}
-In order to explore the interprocess communication through channels and thread creation, we used a simple algorithm that simulates a customer trying to buy a plane ticket from an agency, that can eventually create a service to finish the transaction with the customer. The customer, the agency and the service will be executed in different threads and will communicate through rendezvous channels, meaning 
+In order to explore the interprocess communication through channels and thread creation, we used a simple algorithm that simulates a customer trying to buy a plane ticket from an agency, that can eventually create a service to finish the transaction with the customer. The customer, the agency and the service will be executed in different threads and will communicate through rendezvous channels, meaning that sends and receives block until the message is passed.
 \begin{figure}[H]
 \centering
 \includegraphics[scale=0.4]{Algorithm.png}
@@ -80,7 +80,7 @@ Go is a programming language designed at Google that focuses in performance, usa
 It is statically typed, meaning it checks the type safety of the program by analysing the source code. Therefore we know at compilation time what errors we might have committed.
 
 It introduces a new primitive called Goroutines, a form of lightweight threads, meaning they share context with other goroutines in a program. They are also managed by the Go runtime, that will be responsible for the scheduling of each goroutine. This means that if one goroutine is blocked, Go's run-time will switch to another with work to do.
-Goroutines run over a set of threads that by default match the number of logical processors of the environment. Of course this can be changed with the {\it GOMAXPROCS} function that sets the number of logical processes that the go program can access. Another great aspect of goroutines is that they achieve all this with a very small overhead in memory, allowing the execution of a great number of them.
+Goroutines run over a set of threads that by default match the number of logical processors of the environment. Of course this can be changed with the {\it GOMAXPROCS} function that sets the number of logical processors that the go program can access. Another great aspect of goroutines is that they achieve all this with a very small overhead in memory, allowing the execution of a great number of them.
 
 Go treats channels as first class objects, in contrast with most of the other languages that offer them through external packages, or crates as we will see in Rust. This channels allow goroutines to communicate between themselves and it also allows to synchronize this same goroutines, because the channels block until the sender/receiver are ready to continue.
 
@@ -151,7 +151,7 @@ This is a very important contribution to channel communication which would be ve
 
 For future work, it would be interesting to compare the performance of each one of this languages by adapting the algorithm and measure the amount of transactions it can compute in a certain time interval.
 \section*{Acknowledgements}
-Jorge Martins implemented the majority of the algorithm in Rust. Both authors implemented the Go and Freest algorithms.
+Jorge Martins implemented the majority of the algorithm in Rust. Both authors implemented the Go and FreeST algorithms.
 Both authors wrote this paper. The Rust related parts were mainly written by Jorge Martins.
 Jorge Martins spent around 42 hours on this project. Diogo Lopes spent around 35 hours on this project.
 
