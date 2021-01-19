@@ -72,27 +72,23 @@ Ownership is usually a new concept for programmers that is built over three simp
 
 The most important rule is the 3rd. Once the lifetime of the owner of a value ends, that value is dropped in memory. This is a key aspect of the memory management model of Rust because this way we don't need to have a garbage collector like Java has, that is constantly checking if a value can be erased from memory and by doing so it has a negative impact on the performance of a program. With ownership, Rust as no need for a garbage collector and therefore its performance is greatly enhanced, being on par with languages like C and C++. Therefore, with ownership once we move a variable to a function(as an argument) it stops being available to the function it was currently in.
 
-Another concept that we don't usually see in other programming languages is marking a variable as mutable or immutable in its assignment. By default a variable is immutable and therefore we can change afterwards, meaning we must explicitly mark a variable as mutable in order to change it later in the program.\\
-Unlike what we will see in Go and FreeST, Rust does not have primitives to create threads or channels. Therefore, to do so we need to import crates that support thread creation and channels creation.
+Another concept that we don't usually see in other programming languages is marking a variable as mutable or immutable in its assignment. By default a variable is immutable and therefore we can't change it afterwards, meaning we must explicitly mark a variable as mutable in order to change it later in the program.
 
-One of the most powerful primitives Rust has to offer are Enums, that allows a programmer to define a type by enumerating its possible variants.
+Finally, unlike what we will see in Go and FreeST, Rust does not have primitives to create threads or channels. Therefore, to do so we need to import crates that support thread creation and channels creation.
 \subsection{Go}
-Go is a programming language designed at Google that focuses in performance, usability and parallel programming.
-Its statically typed, meaning it checks the type safety of the program by analysing the source code. Therefore we know at compilation time what errors we might have committed.\\
+Go is a programming language designed at Google that focuses in performance, usability and multiprocessing.
+It is statically typed, meaning it checks the type safety of the program by analysing the source code. Therefore we know at compilation time what errors we might have committed.
+
 It introduces a new primitive called Goroutines, a form of lightweight threads, meaning they share context with other goroutines in a program. They are also managed by the Go runtime, that will be responsible for the scheduling of each goroutine. This means that if one goroutine is blocked, Go's run-time will switch to another with work to do.
-Goroutines multiplex coroutines, independently executing functions, onto a set of threads that by default match the number of logical processors of the environment. Of course this can be changed with the {\it GOMAXPROCS} function that sets the number of logical processes that the go program can access. Another great aspect of goroutines is that they achieve all this we a very modest amount of memory, allowing the execution of a great number of them.\\
-Go treats channels are first class objects, in contrast with most of the other languages that offer them through external packages, or crates as we will see in Rust. This channels allow goroutines to communicate between themselves and it also allows to synchronize this same goroutines, because the channels block until the sender/receiver are ready to continue.\\	
-Go was also built to be simple to understand, and because of that its syntax is very easy to learn. We can observe this in goroutines that can be started with a simple:
-\begin{lstlisting}[language=Go]
-go func()
-\end{lstlisting} 
-or the channels, constructed with
-\begin{lstlisting}[language=Go]
-c := make(chan string)
-\end{lstlisting}.
+Goroutines run over a set of threads that by default match the number of logical processors of the environment. Of course this can be changed with the {\it GOMAXPROCS} function that sets the number of logical processes that the go program can access. Another great aspect of goroutines is that they achieve all this with a very small overhead in memory, allowing the execution of a great number of them.
+
+Go treats channels as first class objects, in contrast with most of the other languages that offer them through external packages, or crates as we will see in Rust. This channels allow goroutines to communicate between themselves and it also allows to synchronize this same goroutines, because the channels block until the sender/receiver are ready to continue.
+
+Go was also built to be simple to understand, and because of that its syntax is very easy to learn. We can observe this in goroutines that can be started with a simple "{\it go func()}" or the channels, constructed with "{\it c := make(chan string)}"
 This language also encourages developers to write good code, emitting warnings to bad practices such as unused variables or unused imports, keeping the code clean.
 \subsection{FreeST}
-FreeST is a programming language developed at LASIGE, that focuses on thread creation and channel communication. Its syntax is very similar to Haskell and it introduces a very powerful tool: context-free session types based channels.\\
+FreeST is a programming language developed at LASIGE, that focuses on thread creation and channel communication. Its syntax is very similar to Haskell and it introduces a very powerful tool: context-free session types based channels.
+
 Session types describe communications in heterogeneous channels with a tail recursive structure\cite{session}.
 For example we can describe a channel that sends a String and receives an Int in a very simple way
 \begin{lstlisting}[language=haskell]
@@ -105,15 +101,16 @@ type exampleC : SL = +{ChoiceOne: !String;?Int, ChoiceTwo: !String;?String}
 \end{lstlisting}
 This is achieved by the select keyword that, as the name indicates, selects the desired branch. The other end of the communication will then learn which choice was made by matching the channel with one of the many choices it is allowed to make.
 The {\it send} and {\it receive} functions send a message through a given channel and receive a message from a given channel, respectively, returning, in the end, whatever is left for that channel to do.
+
 Another concept to have in mind when using FreeST is the notion of Kind, that divides types into 4 categories:
 functional(T), session(S), linear(L) and unrestricted(U).
 The channels we mentioned above are of type SL, meaning they are linear session types. This means they must be fully consumed once created, or otherwise the compiler will emit an error.
 Similar to Go and Rust these channel are blocking, allowing us to synchronize the threads by simply waiting for and sending messages.
 \section{Implementation Details}
 \subsection{Rust}
-In Rust we start by defining some mock values for the max price, journey preference and customer address. It the spawns the thread that will be executing the customers side algorithm and, at the end, it joins this thread so that the main function won't end before the transaction ends(similar to the purpose of the {\it WaitGroup} in Go and the !Bool channel in FreeST). Main is also responsible for creating a channel for the communications. We started by using the channels offeres by the {\bf mpsc} but these channels are for, as the name of the crate indicates, multiple producers and one consumers, which is not the case of our algorithm. This being said we opted to use channels from the chan crate, where we could freely clone any side of the channel(send side and receiver side) which was very useful due the ownership concept(we had to clone the channel because if we pass it to the other thread it will stop being available to the current).
+In Rust we start by defining some mock values for the max price, journey preference and customer address. It then spawns the thread that will be executing the customer's side algorithm and, at the end, it joins this thread so that the main function won't end before the transaction ends(similar to the purpose of the {\it WaitGroup} in Go and the !Bool channel in FreeST). Main is also responsible for creating a channel for the communications. We started by using the channels offered by the {\bf mpsc} crate but these channels are for, as the name of the crate indicates, multiple producers and one consumers, which is not the case of our algorithm. This being said we opted to use channels from the {\bf chan} crate, where we could freely clone any side of the channel(send side and receiver side) which was very useful due the ownership concept(we had to clone the channel because if we pass it to the other thread it will stop being available to the current).
 
-When creating a channel we need to indicate the type of the values it will pass. Since the type vary along the plane ticket algorithm we implemented a {\it Enum} that enumerated all the possible message types. The channel was constructed over this enum type. Enums are a very powerfull tool since each field in an enum can be implemented in order to receive parameters(e.g. {\it Message::JourneyPreference(jpref}). Of course, this means  that everytime a message is received we need to match it to the available types, making sure we did not received something that we shouldn't have.
+When creating a channel we need to indicate the type of the values it will pass. Since the type vary along the plane ticket algorithm we implemented a {\it Enum} that enumerated all the possible message types. The channel was constructed over this enum type. Enums are a very powerful tool since each field in an enum can be implemented in order to receive parameters(e.g. {\it Message::JourneyPreference(jpref}). Of course, this means  that every time a message is received we need to match it to the available types, making sure we did not receive something that we shouldn't have.
 
 The algorithm then proceeds as mentioned in section \ref{alg}. The customer thread spawns the agency thread, passing it clones of both ends of the channel. They exchange journey preferences and prices until the customer {\it evalOffer}(returning true if a random number is even) evaluates to true. The customer then decides to "ACCEPT" or "REJECT" the offer, according to his pre established max price. If rejected the transaction ends. If accepted the agency will spawn the service thread and pass it the cloned channel. This way the customer can send the address to the service and receive a randomly generated date from it, thus ending the transaction.
 \subsection{Go}
@@ -129,7 +126,8 @@ The Service, if spawned, will immediately receive a message of type {\it Custome
 In a similar way with both the other implementations, the main function creates some mock values and starts the {\it customerOrder} thread. Since we don't have a way, other than channels, to synchronize threads in FreeST(like WaitGroups in Go or thread.join() in Rust), in order to stop main from ending before the customer thread finished the transaction we simply create a channel of type {\bf !Bool}. Main waits for the customer to send a True to him in order to know that it can end.
 Due to the fact that we must explicitly declare what types will be sent in the communication channels and also due to the fact that in the end of their scope the channel must be fully consumed(since they are linear types) we defined the following channels:
 \begin{lstlisting}[language=haskell]
-type LoopC : SL =  !String;?Int;+{Break: ChoiceC, Continue: LoopC}
+type LoopC : SL =  !String;?Int;+{Break: ChoiceC, 
+								  Continue: LoopC}
 type ChoiceC : SL = +{Accept: ServiceC, Reject: Skip}
 type ServiceC : SL = !String;!String;!String;?String
 \end{lstlisting}
@@ -139,15 +137,24 @@ If he chose to break he will have a channel of type {\it ChoiceC} where he can s
 
 At this point the communication proceeds as the algorithm describes it between the customer and the service thread until the ServiceC channel is fully consumed, making it possible for the transaction to end.
 \section{Discussion}
-%Compare languages
+The three languages we experimented in this project had very different learning curves. Rust was by far the most challenging language since it introduced concepts we weren't used to like ownership and lifetimes. It proved to be quite challenging to adapt to the fact that a variable can no longer be used once its scope passes to another function or thread. A concrete example was that we needed to use a different channel crate in order to clone the receiver endpoint(the mpsc does not allow this to happen). Go, on the other hand, was the exact opposite. Incredibly easy to learn and its syntax was immensely intuitive, especially in the channels where the $->$ and the $<-$ express very easily the send/receive operations. Finally, FreeST was not necessarily hard neither necessarily simple. Most of the issues we had was due to the fact that there is still very little documentation, but we could work around this issues with the help of the developers of the language.
+
+Now comparing the concurrency mechanisms of each language, we felt that in terms of thread creation, Go and FreeST have a better and more intuitive approach when compared to Rust where we need to import the crate that allows thread creation and "move" the values into the thread(losing their scope in the current thread).
+Our opinion on channels is pretty much the same. Go has the most simple and intuitive channels of the three, while Rust suffers a lot from(in our eyes) because of the fact that they are not natively implemented. But in the end FreeST had the most interesting and practical channels, due to their tail-recursive structure and their branch decision option.
+
+Finally on thread synchronization, FreeST loses some points since we needed to create an extra channel to synchronize the main thread with the customer thread. It works fine but creating a channel with this purpose is not as intuitive as the thread.join() in Rust or the {\it WaitGroup} in Go.
+
+
 \section{Conclusions}
 Rust and Go are great languages either by their performance, simplicity or offered tools that are growing in fame due to these same reasons. With this it is safe to say that FreeST as some powerful competition ahead. On the other hand, FreeST has a very powerful tool that makes its future very bright: the context-free sessions types.
 This is a very important contribution to channel communication which would be very interesting to see implemented in other languages, like creating a Rust crate offering channels of the said type.
-\\For future work, it would be interesting to compare the performance of each one of this languages by adapting the algorithm and measure the amount of transactions it can compute in a certain time interval.
+
+For future work, it would be interesting to compare the performance of each one of this languages by adapting the algorithm and measure the amount of transactions it can compute in a certain time interval.
 \section*{Acknowledgements}
-Jorge Martins implemented the big majority of the algorithm in Rust. Both authors implemented the Go and Freest algorithms.
+Jorge Martins implemented the majority of the algorithm in Rust. Both authors implemented the Go and Freest algorithms.
 Both authors wrote this paper. The Rust related parts were mainly written by Jorge Martins.
-Jorge Martins spent around 42 hours on this project. Diogo Lopes spent around 35 hours on this project.\\
+Jorge Martins spent around 42 hours on this project. Diogo Lopes spent around 35 hours on this project.
+
 The authors would also like to thank Bernardo Almeida, a PhD student and LASIGE researcher that has been developing the language FreeST, for being available to answer questions that emerged while we were developing this project.
 \bibliographystyle{unsrt}
 \bibliography{bibliography}

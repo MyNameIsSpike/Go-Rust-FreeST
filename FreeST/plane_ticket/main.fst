@@ -14,8 +14,6 @@ type ServiceC : SL = !String;!String;!String;?String
 type ChoiceC : SL = +{Accept: ServiceC, Reject: Skip}
 type LoopC : SL =  !String;?Int;+{Break: ChoiceC, Continue: LoopC}
 
----------------------------------------------------------
--- main is not supposed to return Int, this is just temporary
 main : String
 main =  
     -- some mock values

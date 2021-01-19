@@ -24,7 +24,7 @@ pub fn order_delivery(send: Sender<Message>, recv: Receiver<Message>) {
             );
             let mut rng = rand::thread_rng();
             let month: u32 = rng.gen_range(1, 13);
-            let day: u32 = rng.gen_range(1, 30);
+            let day: u32 = rng.gen_range(1, 29);
             let date = Utc.ymd(2021, month, day);
             let flight_date = Message::JourneyDate(date);
             service_send.send(flight_date);
